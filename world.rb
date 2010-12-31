@@ -14,7 +14,7 @@ module Pointos
   class World
     include Singleton
 
-    Info = Struct.new(:screen)
+    Info = Struct.new(:screen, :font)
     def initialize
       @things = []
       @scale_value = 100
@@ -24,6 +24,10 @@ module Pointos
       @center_x = screen.w / 2
       @center_y = screen.h / 2
       @info = Info.new(screen)
+    end
+
+    def font=(font)
+      @info.font = font
     end
 
     attr_accessor :center_x, :center_y, :scale_value
@@ -100,8 +104,11 @@ module Pointos
 
     def render(i)
       i.screen.draw_circle(self.x, self.y, 1, @color)
+      str = "#{@name} (#{@c})"
+      i.font.textout(i.screen, str, self.x + 3, self.y + 3)
     end
   end
+  Point.new!(Complex.rectangular(0, 0), "O")
 
   class Line < Thing
     def initialize(from, to)
