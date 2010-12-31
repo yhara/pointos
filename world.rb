@@ -2,19 +2,19 @@ require 'singleton'
 require 'complex' # for Ruby 1.8
 
 module Pointos
+  BLACK   = [0,0,0]
+  RED     = [255,0,0]
+  GREEN   = [0,255,0]
+  BLUE    = [0,0,255]
+  YELLOW  = [255,255,0]
+  CYAN    = [0,255,255]
+  MAGENTA = [255,0,255]
+  WHITE   = [255,255,255]
+
   class World
     include Singleton
 
     Info = Struct.new(:screen)
-    BLACK   = [0,0,0]
-    RED     = [255,0,0]
-    GREEN   = [0,255,0]
-    BLUE    = [0,0,255]
-    YELLOW  = [255,255,0]
-    CYAN    = [0,255,255]
-    MAGENTA = [255,0,255]
-    WHITE   = [255,255,255]
-
     def initialize
       @things = []
       @scale_value = 100
@@ -64,14 +64,14 @@ module Pointos
   class Background < Thing
     def render(i)
       s = i.screen
-      s.fill_rect(0, 0, s.w, s.h, World::BLACK)
+      s.fill_rect(0, 0, s.w, s.h, Pointos::BLACK)
     end
   end
   Background.new!
 
   class Axes < Thing
     def initialize
-      @color = World::WHITE
+      @color = Pointos::WHITE
     end
 
     def render(i)
@@ -86,7 +86,7 @@ module Pointos
   class Point < Thing
     def initialize(c, name="")
       @c, @name = c, name
-      @color = World::YELLOW
+      @color = Pointos::YELLOW
     end
     attr_reader :c
 
@@ -106,7 +106,7 @@ module Pointos
   class Line < Thing
     def initialize(from, to)
       @from, @to = from, to
-      @color = World::YELLOW
+      @color = Pointos::YELLOW
     end
     attr_reader :from, :to
 
@@ -118,7 +118,7 @@ module Pointos
   class Circle < Thing
     def initialize(center, radius)
       @center, @radius = center, radius
-      @color = World::YELLOW
+      @color = Pointos::YELLOW
     end
     attr_reader :center, :radius
     alias c center
