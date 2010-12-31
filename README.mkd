@@ -1,0 +1,10 @@
+Pointos
+=======
+
+Pointos is a interactive visualizer of points, lines and circles.
+
+Requirements
+------------
+
+* Ruby
+* Ruby/SDL
