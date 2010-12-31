@@ -115,11 +115,15 @@ module Pointos
   end
 
   class Point < Thing
-    def initialize(c, name="")
-      @c, @name = c, name
+    def initialize(c, klass)
+      @c, @klass = c, klass
       @color = Pointos::YELLOW
     end
     attr_accessor :c
+
+    def name
+      @klass.name
+    end
 
     def x
       World.instance.center_x + (World.instance.scale(@c.real))
@@ -132,9 +136,9 @@ module Pointos
     def render(i)
       i.screen.draw_circle(self.x, self.y, 1, @color)
       if i.show_coords
-        str = format("#{@name} (%.2f+%.2fi)", @c.real, @c.imag)
+        str = format("#{self.name} (%.2f+%.2fi)", @c.real, @c.imag)
       else
-        str = @name
+        str = self.name
       end
       i.font.textout(i.screen, str, self.x + 3, self.y + 3)
     end
@@ -142,7 +146,7 @@ module Pointos
 
   class Line < Thing
     def initialize(from, to)
-      @from, @to = from, to
+      @from, @to = from.point, to.point
       @color = Pointos::YELLOW
     end
     attr_reader :from, :to
@@ -154,7 +158,7 @@ module Pointos
 
   class Circle < Thing
     def initialize(center, radius)
-      @center, @radius = center, radius
+      @center, @radius = center.point, radius
       @color = Pointos::YELLOW
     end
     attr_reader :center, :radius
@@ -166,4 +170,14 @@ module Pointos
                            World.instance.scale(@radius), @color)
     end
   end
+end
+
+class Class
+  attr_accessor :point
+end
+
+def Point(c)
+  Class.new.tap{|ret|
+    ret.point = Point.new!(c, ret)
+  }
 end

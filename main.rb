@@ -1,4 +1,4 @@
-require './world.rb'
+require './pointos.rb'
 include Pointos
 
 if ARGV.size == 0
