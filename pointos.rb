@@ -76,6 +76,10 @@ module Pointos
         # TODO
       end
     end
+
+    def wheel(dir)
+      @scale_value += 10*dir
+    end
   end
 
   class Thing

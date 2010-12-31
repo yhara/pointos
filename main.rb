@@ -15,10 +15,12 @@ SDL.init( SDL::INIT_VIDEO )
 screen = SDL::Screen.open(640,480,16,SDL::SWSURFACE)
 font = SDL::BMFont.open("font.bmp",SDL::BMFont::TRANSPARENT)
 
-World.instance.screen = screen
-World.instance.font = font
+world = World.instance
 
-info = World.instance.info
+world.screen = screen
+world.font = font
+
+info = world.info
 
 mtime = File.mtime(src_path)
 load src_path
@@ -27,12 +29,12 @@ K = SDL::Key
 while true
   begin
     if (mt = File.mtime(src_path)) != mtime
-      World.instance.clear
+      world.clear
       begin
         load src_path
       rescue Exception => e
         p e
-        World.instance.clear
+        world.clear
       end
       mtime = mt
     end
@@ -41,8 +43,15 @@ while true
 
   while event = SDL::Event.poll
     case event
+    when SDL::Event::MouseButtonDown
+      case event.button
+      when 4 then world.wheel(-1)
+      when 5 then world.wheel(+1)
+      end
     when SDL::Event::MouseButtonUp
-      World.instance.mouse_clicked
+      if event.button == 1
+        world.mouse_clicked
+      end
     when SDL::Event::Quit
       exit
     when SDL::Event::KeyDown
@@ -56,7 +65,7 @@ while true
     end
   end
 
-  World.instance.render
+  world.render
 
   screen.flip
 
