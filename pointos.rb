@@ -66,11 +66,11 @@ module Pointos
     end
 
     def mouse_clicked
-      @point_name ||= "A"
+      @point_name ||= "P1"
       x, y, = SDL::Mouse.state
       case @info.mode
       when :pencil
-        Point.new!(self.to_complex(x, y), @point_name)
+        Object.const_set(@point_name, Point(self.to_complex(x, y)))
         @point_name = @point_name.succ
       when :eraser
         # TODO
@@ -134,6 +134,8 @@ module Pointos
     end
 
     def render(i)
+      return unless name
+
       i.screen.draw_circle(self.x, self.y, 1, @color)
       if i.show_coords
         str = format("#{self.name} (%.2f+%.2fi)", @c.real, @c.imag)
@@ -145,9 +147,9 @@ module Pointos
   end
 
   class Line < Thing
-    def initialize(from, to)
-      @from, @to = from.point, to.point
-      @color = Pointos::YELLOW
+    def initialize(from, to, color=YELLOW)
+      @from, @to = from, to
+      @color = color
     end
     attr_reader :from, :to
 
@@ -158,7 +160,7 @@ module Pointos
 
   class Circle < Thing
     def initialize(center, radius)
-      @center, @radius = center.point, radius
+      @center, @radius = center, radius
       @color = Pointos::YELLOW
     end
     attr_reader :center, :radius
@@ -172,12 +174,39 @@ module Pointos
   end
 end
 
-class Class
-  attr_accessor :point
-end
-
 def Point(c)
   Class.new.tap{|ret|
     ret.point = Point.new!(c, ret)
+    ret.c = c
   }
+end
+
+def Line(from, to); Line.new!(from.point, to.point); end
+def Circle(center, radius); Circle.new!(center.point, radius); end
+
+require 'forwardable'
+class Class
+  extend Forwardable
+  attr_accessor :point
+  attr_accessor :c
+
+  def_delegators(:@c, :abs, :abs2, :angle, :arg, :conj, :conjugate,
+                 :denominator, :imag, :image, :numerator, :polar, :real)
+
+  def coerce(other)
+    case other
+    when Complex
+      [other, self.c]
+    end
+  end
+
+  [:+, :-, :*, :/, :%, :**, :<=>, :==, :quo].each do |op|
+    define_method op do |other|
+      case other
+      when Class then c2 = other.c
+      else c2 = other
+      end
+      self.c.__send__(op, c2)
+    end
+  end
 end
