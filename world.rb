@@ -1,3 +1,4 @@
+require 'hashie/mash'
 require 'singleton'
 require 'complex' # for Ruby 1.8
 
@@ -14,17 +15,23 @@ module Pointos
   class World
     include Singleton
 
-    Info = Struct.new(:screen, :font)
     def initialize
       @things = []
       @scale_value = 100
+      @mode = :pencil
+      @info = Hashie::Mash.new(
+        :mode => :pencil,
+        :show_coords => true
+      )
     end
 
     def screen=(screen)
       @center_x = screen.w / 2
       @center_y = screen.h / 2
-      @info = Info.new(screen)
+      @info.screen = screen
     end
+
+    attr_reader :info
 
     def font=(font)
       @info.font = font
@@ -44,8 +51,25 @@ module Pointos
       l * @scale_value
     end
 
+    def to_complex(x, y)
+      Complex.rectangular((x - @center_x) / @scale_value.to_f,
+                          -(y - @center_y) / @scale_value.to_f)
+    end
+
     def render
       @things.each{|thing| thing.render(@info) }
+    end
+
+    def mouse_clicked
+      @point_name ||= "A"
+      x, y, = SDL::Mouse.state
+      case @info.mode
+      when :pencil
+        Point.new!(self.to_complex(x, y), @point_name)
+        @point_name = @point_name.succ
+      when :eraser
+        # TODO
+      end
     end
   end
 
@@ -104,7 +128,11 @@ module Pointos
 
     def render(i)
       i.screen.draw_circle(self.x, self.y, 1, @color)
-      str = "#{@name} (#{@c})"
+      if i.show_coords
+        str = "#{@name} (#{@c})"
+      else
+        str = @name
+      end
       i.font.textout(i.screen, str, self.x + 3, self.y + 3)
     end
   end

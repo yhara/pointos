@@ -10,14 +10,27 @@ font = SDL::BMFont.open("font.bmp",SDL::BMFont::TRANSPARENT)
 World.instance.screen = screen
 World.instance.font = font
 
+info = World.instance.info
+
 p1 = Point.new!(Complex.rectangular(1,2), "p1")
 c1 = Circle.new!(p1, 1)
 
+K = SDL::Key
 while true
   while event = SDL::Event.poll
     case event
-    when SDL::Event::KeyDown, SDL::Event::Quit
+    when SDL::Event::MouseButtonUp
+      World.instance.mouse_clicked
+    when SDL::Event::Quit
       exit
+    when SDL::Event::KeyDown
+      case event.sym
+      when K::ESCAPE, K::Q
+        exit
+      when K::P then info.mode = :pencil
+      when K::E then info.mode = :eraser
+      when K::C then info.show_coords = !info.show_coords
+      end
     end
   end
 
@@ -25,6 +38,6 @@ while true
 
   screen.flip
 
-  sleep 0.2
+  sleep 0.017
 end
 
