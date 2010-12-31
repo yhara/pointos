@@ -1,5 +1,13 @@
 require './world.rb'
 include Pointos
+
+if ARGV.size == 0
+  puts "usage: #$0 src.rb"
+  exit
+else
+  src_path = ARGV[0]
+end
+
 require 'sdl'
 
 SDL.init( SDL::INIT_VIDEO )
@@ -12,11 +20,25 @@ World.instance.font = font
 
 info = World.instance.info
 
-p1 = Point.new!(Complex.rectangular(1,2), "p1")
-c1 = Circle.new!(p1, 1)
+mtime = File.mtime(src_path)
+load src_path
 
 K = SDL::Key
 while true
+  begin
+    if (mt = File.mtime(src_path)) != mtime
+      World.instance.clear
+      begin
+        load src_path
+      rescue Exception => e
+        p e
+        World.instance.clear
+      end
+      mtime = mt
+    end
+  rescue Errno::ENOENT
+  end
+
   while event = SDL::Event.poll
     case event
     when SDL::Event::MouseButtonUp
@@ -40,4 +62,3 @@ while true
 
   sleep 0.017
 end
-

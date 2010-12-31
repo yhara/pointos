@@ -16,6 +16,7 @@ module Pointos
     include Singleton
 
     def initialize
+      @internals = [Background.new, Axes.new]
       @things = []
       @scale_value = 100
       @mode = :pencil
@@ -47,6 +48,10 @@ module Pointos
       @things.delete_if{|t| t.equal?(thing)}
     end
 
+    def clear
+      @things.clear
+    end
+
     def scale(l)
       l * @scale_value
     end
@@ -57,7 +62,7 @@ module Pointos
     end
 
     def render
-      @things.each{|thing| thing.render(@info) }
+      (@internals + @things).each{|thing| thing.render(@info) }
     end
 
     def mouse_clicked
@@ -95,7 +100,6 @@ module Pointos
       s.fill_rect(0, 0, s.w, s.h, Pointos::BLACK)
     end
   end
-  Background.new!
 
   class Axes < Thing
     def initialize
@@ -109,14 +113,13 @@ module Pointos
       i.screen.draw_line(x, 0, x, i.screen.h, @color)
     end
   end
-  Axes.new!
 
   class Point < Thing
     def initialize(c, name="")
       @c, @name = c, name
       @color = Pointos::YELLOW
     end
-    attr_reader :c
+    attr_accessor :c
 
     def x
       World.instance.center_x + (World.instance.scale(@c.real))
@@ -129,14 +132,13 @@ module Pointos
     def render(i)
       i.screen.draw_circle(self.x, self.y, 1, @color)
       if i.show_coords
-        str = "#{@name} (#{@c})"
+        str = format("#{@name} (%.2f+%.2fi)", @c.real, @c.imag)
       else
         str = @name
       end
       i.font.textout(i.screen, str, self.x + 3, self.y + 3)
     end
   end
-  Point.new!(Complex.rectangular(0, 0), "O")
 
   class Line < Thing
     def initialize(from, to)
