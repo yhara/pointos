@@ -3,6 +3,8 @@ require 'singleton'
 require 'complex' # for Ruby 1.8
 
 module Pointos
+  VERSION = File.read(File.expand_path("../VERSION", File.dirname(__FILE__)))
+
   BLACK   = [0,0,0]
   RED     = [255,0,0]
   GREEN   = [0,255,0]
@@ -79,6 +81,11 @@ module Pointos
 
     def wheel(dir)
       @scale_value += 10*dir
+    end
+
+    def dragged(xrel, yrel)
+      @center_x += xrel
+      @center_y += yrel
     end
   end
 
@@ -194,7 +201,7 @@ class Class
   attr_accessor :point
   attr_accessor :c
 
-  def_delegators(:@c, :abs, :abs2, :angle, :arg, :conj, :conjugate,
+  def_delegators(:@c, :-@, :+@, :abs, :abs2, :angle, :arg, :conj, :conjugate,
                  :denominator, :imag, :image, :numerator, :polar, :real)
 
   def coerce(other)

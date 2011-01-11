@@ -6,5 +6,93 @@ Pointos is a interactive visualizer of points, lines and circles.
 Requirements
 ------------
 
-* Ruby
+* Ruby (1.9.x is preffered)
 * Ruby/SDL
+
+    $ gem install rubysdl
+
+* rsdl, if you use Mac OS X
+
+    $ gem install rsdl
+
+Usage
+=====
+
+Create a src.rb like:
+
+    require 'pointos/main'
+    
+    O = Point(0)
+    A = Point(1+2.i)
+    Line(O, A) 
+
+and type:
+
+    $ ruby src.rb
+    (Mac)
+    $ rsdl src.rb
+
+then two points and a line are drawn in the new window.
+If you edit and save src.rb, pointos detects and reloads it
+automatically.
+
+The DSL of Pointos
+------------------
+
+Create a point at the origin (= 0.0)
+
+    O = Point(0)
+
+Create a point at 1+2i
+
+    A = Point(1 + 2.i)
+
+Note1: the name of a point must start form capital letter
+
+Note2: the variable A behaves like an instance of Complex
+
+Refer to existing point
+
+    B = Point(A * 1.1)
+
+Create a line from A to B
+
+    Line(A, B)
+
+Create a circle (center:A, radius:2)
+
+    Circle(A, 2)
+
+Mouse Operations
+----------------
+
+* Drag to move in the plane
+* Wheel up/down to zoom
+* Click to create a point
+
+Keyboard Operations
+-------------------
+
+* Q (or Escape) to quit
+* C to toggle displaying the coordinates
+
+Internals
+=========
+
+In fact, Kernel::Point() returns an instance of Class,
+not Complex. This is the trick to display the *names of
+the variables* in the plane ;-) 
+See lib/pointos.rb for details.
+
+(Another idea is to use Kernel#local\_variables, I have not
+tried yet though.)
+
+Licence
+=======
+
+MIT
+
+Contact
+=======
+
+[yhara (Yutaka HARA)](http://twitter.com/yhara_en)
